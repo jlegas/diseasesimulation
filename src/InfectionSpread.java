@@ -1,12 +1,20 @@
 // Arguments:
-// N population size
-// S probability that a sick person infects someone not immune (%)
-// minDays minimal sickness duration in days
-// maxDays maximal sickness duration in days
-// L probability that the infected person dies
-// patients0 number of initially infected people
-// placement0 placement of initially infected people
-//
+// N population size (def. 40)
+// S probability that a sick person infects someone not immune (%, def. 0)
+// minDays minimal sickness duration in days (def. 6)
+// maxDays maximal sickness duration in days (def. 9)
+// L probability that the infected person dies (def. 0)
+// patients0 number of initially infected people (def. 1)
+// placement0 placement of initially infected people (def. 20,20)
+// output optional specification of output lines:
+//   1 dailyInfected
+//   2 dailyDead
+//   3 dailyCured
+//   4 currentlyInfected
+//   5 totalInfected
+//   6 totalDead
+// Example:
+// java InfectionSpread 100 10 6 9 0 1 15,15
 
 
 import java.util.ArrayList;
@@ -14,7 +22,6 @@ import java.util.Random;
 
 public class InfectionSpread {
 
-    // Added initial values for args
     private static int N = 40;
     private static int S;
     private static int minDays = 6;
@@ -33,6 +40,7 @@ public class InfectionSpread {
     private static int totalCured;
     private static int currentlyInfected;
     private static int totalLucky;
+    private static int output;
 
     // Subclass for each unit of the population
     static class person {
@@ -110,7 +118,13 @@ public class InfectionSpread {
         }
         if (placements.size() != patients0) {
             throw new IllegalArgumentException("check infection placement!");
+
         }
+//        for (int[] arr : placements
+//                ) {
+//            System.out.println(arr[0]);
+//            System.out.println(arr[1]);
+//        }
         return placements;
     }
 
@@ -118,6 +132,7 @@ public class InfectionSpread {
         date = 0;
         totalInfected = currentlyInfected = patients0;
         totalLucky = N * N;
+//        System.out.println("luck" + totalLucky);
 
         // Initialize the population matrix
         population = new person[N][N];
@@ -135,10 +150,18 @@ public class InfectionSpread {
         toInfect.clear();
 
         System.out.println("Population initialized");
+//        System.out.println("total inf" + totalInfected);
+//        System.out.println("curr inf" + currentlyInfected);
+//        System.out.println("patients0" + patients0);
+//        System.out.println("luck" + totalLucky);
     }
 
     // A day of simulation
     private static void day() {
+//        System.out.println("total inf" + totalInfected);
+//        System.out.println("curr inf" + currentlyInfected);
+//        System.out.println("patients0" + patients0);
+//        System.out.println("luck" + totalLucky);
         date++;
         dailyInfected = 0;
         dailyCured = 0;
@@ -171,21 +194,46 @@ public class InfectionSpread {
         }
 
         // Print status
-        report();
+        if (output != -1) {
+            report();
+        }
     }
 
     // Prints status
     private static void report() {
         System.out.println("...");
         System.out.println("Infection spread report, day " + date);
-        System.out.println("Infected today..............." + dailyInfected);
-        System.out.println("Died today..................." + dailyDead);
-        System.out.println("Recovered today.............." + dailyCured);
-        System.out.println("Ill today:..................." + currentlyInfected);
-        System.out.println("Total infected to date......." + totalInfected);
+        if (output == 0 || output > 6) {
+            System.out.println("Infected today..............." + dailyInfected);
+            System.out.println("Died today..................." + dailyDead);
+            System.out.println("Recovered today.............." + dailyCured);
+            System.out.println("Ill today:..................." + currentlyInfected);
+            System.out.println("Total infected to date......." + totalInfected);
 //        System.out.println("Total cured to date.........." + totalCured);
-        System.out.println("Total died to date..........." + totalDead);
+            System.out.println("Total died to date..........." + totalDead);
 //        System.out.println("Total lucky.................." + totalLucky);
+        } else {
+            switch (output) {
+                case 1:
+                    System.out.println("Infected today..............." + dailyInfected);
+                    break;
+                case 2:
+                    System.out.println("Died today..................." + dailyDead);
+                    break;
+                case 3:
+                    System.out.println("Recovered today.............." + dailyCured);
+                    break;
+                case 4:
+                    System.out.println("Ill today:..................." + currentlyInfected);
+                    break;
+                case 5:
+                    System.out.println("Total infected to date......." + totalInfected);
+                    break;
+                case 6:
+                    System.out.println("Total died to date..........." + totalDead);
+                    break;
+            }
+        }
     }
 
     // Spreads the disease
@@ -246,7 +294,11 @@ public class InfectionSpread {
     }
 
     public static void main(String[] args) {
-        if (args.length == 7) {
+        if (args.length == 8) {
+            output = Integer.parseInt(args[7]);
+        }
+
+        if (args.length >= 7) {
             N = Integer.parseInt(args[0]);
             S = Integer.parseInt(args[1]);
             minDays = Integer.parseInt(args[2]);
@@ -258,7 +310,9 @@ public class InfectionSpread {
 
         // Default args
         else {
-            int [] initialPl = {20,20};
+            int[] initialPl = new int[2];
+            initialPl[0] = initialPl[1] = 20;
+            toInfect = new ArrayList<>();
             toInfect.add(initialPl);
         }
         init(N);
